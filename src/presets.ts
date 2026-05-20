@@ -10,9 +10,23 @@ const YELLOW = combineRgb(220, 120, 0)
 
 export function getPresetSections(): CompanionPresetSection[] {
 	return [
-		{ id: 'system', name: 'System', definitions: ['connection_status'] },
-		{ id: 'all_trackers', name: 'All Trackers', definitions: ['record_all', 'preview_all'] },
-		{ id: 'scene', name: 'Scene', definitions: ['next_scene', 'reset_take_number'] },
+		{
+			id: 'system',
+			name: 'System',
+			definitions: [{ id: 'system', name: 'System', type: 'simple', presets: ['connection_status'] }],
+		},
+		{
+			id: 'all_trackers',
+			name: 'All Trackers',
+			definitions: [
+				{ id: 'all_trackers', name: 'All Trackers', type: 'simple', presets: ['record_all', 'preview_all'] },
+			],
+		},
+		{
+			id: 'scene',
+			name: 'Scene',
+			definitions: [{ id: 'scene', name: 'Scene', type: 'simple', presets: ['next_scene', 'reset_take_number'] }],
+		},
 	]
 }
 
@@ -29,7 +43,7 @@ export function getPresets(_instance: RealLineInstance): CompanionPresetDefiniti
 
 	presets['record_all'] = {
 		type: 'simple',
-		name: 'Record - All Trackers',
+		name: 'Record — All Trackers',
 		style: { text: 'RECORD', size: '18', color: WHITE, bgcolor: GREY },
 		feedbacks: [
 			{ feedbackId: 'all_recording', options: {}, style: { bgcolor: RED } },
@@ -41,7 +55,7 @@ export function getPresets(_instance: RealLineInstance): CompanionPresetDefiniti
 
 	presets['preview_all'] = {
 		type: 'simple',
-		name: 'Preview - All Trackers',
+		name: 'Preview — All Trackers',
 		style: { text: 'PREVIEW', size: '18', color: WHITE, bgcolor: GREY },
 		feedbacks: [
 			{ feedbackId: 'all_previewing', options: {}, style: { bgcolor: GREEN } },
