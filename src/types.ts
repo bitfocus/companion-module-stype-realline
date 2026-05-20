@@ -9,6 +9,7 @@ export interface TrackerInfo {
 }
 
 export interface ModuleConfig {
+	[key: string]: string | number
 	host: string
 	port: number
 	reconnect_interval: number
@@ -39,9 +40,21 @@ export interface WsTrackerStateEvent extends TrackerInfo {
 	event: 'tracker_state'
 }
 
+export interface WsTimecodeEvent {
+	event: 'timecode'
+	value: string
+}
+
 export interface WsErrorEvent {
 	event: 'error'
 	message: string
 }
 
-export type WsEvent = WsStateEvent | WsPongEvent | WsTrackerNamesEvent | WsActiveCountEvent | WsTrackerStateEvent | WsErrorEvent
+export type WsEvent =
+	| WsStateEvent
+	| WsPongEvent
+	| WsTrackerNamesEvent
+	| WsActiveCountEvent
+	| WsTrackerStateEvent
+	| WsTimecodeEvent
+	| WsErrorEvent

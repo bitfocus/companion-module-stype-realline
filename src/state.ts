@@ -3,6 +3,7 @@ import type { TrackerInfo } from './types.js'
 export class StateManager {
 	trackers: TrackerInfo[] = []
 	wsConnected = false
+	timecode = ''
 
 	private readonly onChange: () => void
 

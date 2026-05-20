@@ -1,26 +1,25 @@
-import type { CompanionVariableDefinition, CompanionVariableValues } from '@companion-module/base'
+import type { CompanionVariableDefinitions, CompanionVariableValues } from '@companion-module/base'
 import type { StateManager } from './state.js'
 
 function safeName(name: string): string {
 	return name.replace(/[^a-zA-Z0-9_]/g, '_')
 }
 
-export function getVariableDefinitions(state: StateManager): CompanionVariableDefinition[] {
-	const defs: CompanionVariableDefinition[] = [
-		{ variableId: 'connected', name: 'Connection Status' },
-		{ variableId: 'tracker_count', name: 'Total Tracker Count' },
-		{ variableId: 'active_count', name: 'Active Tracker Count (recording or previewing)' },
-		{ variableId: 'tracker_names', name: 'All Tracker Names (comma-separated)' },
-	]
+export function getVariableDefinitions(state: StateManager): CompanionVariableDefinitions {
+	const defs: CompanionVariableDefinitions = {
+		connected: { name: 'Connection Status' },
+		timecode: { name: 'Timecode (first tracker)' },
+		tracker_count: { name: 'Total Tracker Count' },
+		active_count: { name: 'Active Tracker Count (recording or previewing)' },
+		tracker_names: { name: 'All Tracker Names (comma-separated)' },
+	}
 
 	for (const tracker of state.trackers) {
 		const s = safeName(tracker.name)
-		defs.push(
-			{ variableId: `tracker_${s}_recording`, name: `${tracker.name} — Recording` },
-			{ variableId: `tracker_${s}_previewing`, name: `${tracker.name} — Previewing` },
-			{ variableId: `tracker_${s}_frozen`, name: `${tracker.name} — Frozen` },
-			{ variableId: `tracker_${s}_warning`, name: `${tracker.name} — Has Warning` },
-		)
+		defs[`tracker_${s}_recording`] = { name: `${tracker.name} - Recording` }
+		defs[`tracker_${s}_previewing`] = { name: `${tracker.name} - Previewing` }
+		defs[`tracker_${s}_frozen`] = { name: `${tracker.name} - Frozen` }
+		defs[`tracker_${s}_warning`] = { name: `${tracker.name} - Has Warning` }
 	}
 
 	return defs
@@ -29,6 +28,7 @@ export function getVariableDefinitions(state: StateManager): CompanionVariableDe
 export function getVariableValues(state: StateManager): CompanionVariableValues {
 	const values: CompanionVariableValues = {
 		connected: state.wsConnected ? 'Connected' : 'Disconnected',
+		timecode: state.timecode,
 		tracker_count: state.trackers.length,
 		active_count: state.trackers.filter((t) => t.recording || t.previewing).length,
 		tracker_names: state.trackers.map((t) => t.name).join(', '),

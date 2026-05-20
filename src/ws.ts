@@ -53,7 +53,8 @@ export class WsClient {
 
 		this.ws.on('message', (data: WebSocket.Data) => {
 			try {
-				const msg = JSON.parse(data.toString()) as WsEvent
+				const raw = typeof data === 'string' ? data : (data as Buffer).toString('utf8')
+				const msg = JSON.parse(raw) as WsEvent
 				this.log('debug', `RX: ${JSON.stringify(msg)}`)
 				this.onMessage(msg)
 			} catch (e: unknown) {
@@ -96,9 +97,17 @@ export class WsClient {
 
 	private cleanup(): void {
 		this.stopPing()
-		if (this.reconnectTimer) { clearTimeout(this.reconnectTimer); this.reconnectTimer = null }
+		if (this.reconnectTimer) {
+			clearTimeout(this.reconnectTimer)
+			this.reconnectTimer = null
+		}
 		if (this.ws) {
-			try { this.ws.removeAllListeners(); this.ws.close() } catch { /* ignore */ }
+			try {
+				this.ws.removeAllListeners()
+				this.ws.close()
+			} catch {
+				/* ignore */
+			}
 			this.ws = null
 		}
 	}
@@ -106,15 +115,23 @@ export class WsClient {
 	private scheduleReconnect(): void {
 		if (this.destroyed || this.reconnectTimer) return
 		this.log('debug', `Reconnecting in ${this.reconnectInterval / 1000}s`)
-		this.reconnectTimer = setTimeout(() => { this.reconnectTimer = null; this.connect() }, this.reconnectInterval)
+		this.reconnectTimer = setTimeout(() => {
+			this.reconnectTimer = null
+			this.connect()
+		}, this.reconnectInterval)
 	}
 
 	private startPing(): void {
 		this.stopPing()
-		this.pingTimer = setInterval(() => { this.send({ cmd: 'ping' }) }, 25000)
+		this.pingTimer = setInterval(() => {
+			this.send({ cmd: 'ping' })
+		}, 25000)
 	}
 
 	private stopPing(): void {
-		if (this.pingTimer) { clearInterval(this.pingTimer); this.pingTimer = null }
+		if (this.pingTimer) {
+			clearInterval(this.pingTimer)
+			this.pingTimer = null
+		}
 	}
 }

@@ -1,17 +1,22 @@
-import { InstanceBase, InstanceStatus, runEntrypoint } from '@companion-module/base'
+import { InstanceBase, InstanceStatus, type InstanceTypes, type SomeCompanionConfigField } from '@companion-module/base'
 import type { ModuleConfig, WsEvent } from './types.js'
 import { getConfigFields } from './config.js'
 import { StateManager } from './state.js'
 import { WsClient } from './ws.js'
 import { getActions } from './actions.js'
 import { getFeedbacks } from './feedbacks.js'
-import { getPresets } from './presets.js'
+import { getPresetSections, getPresets } from './presets.js'
 import { getVariableDefinitions, getVariableValues } from './variables.js'
-import { upgradeScripts } from './upgrade.js'
+import { upgradeScripts } from './upgrades.js'
 
 const STATE_UPDATE_DEBOUNCE_MS = 50
 
-export class RealLineInstance extends InstanceBase<ModuleConfig> {
+export type ModuleSchema = InstanceTypes & {
+	config: ModuleConfig
+	secrets: undefined
+}
+
+export default class RealLineInstance extends InstanceBase<ModuleSchema> {
 	state!: StateManager
 	ws!: WsClient
 
@@ -44,11 +49,14 @@ export class RealLineInstance extends InstanceBase<ModuleConfig> {
 	}
 
 	async destroy(): Promise<void> {
-		if (this.stateUpdateTimer) { clearTimeout(this.stateUpdateTimer); this.stateUpdateTimer = null }
+		if (this.stateUpdateTimer) {
+			clearTimeout(this.stateUpdateTimer)
+			this.stateUpdateTimer = null
+		}
 		this.ws?.destroy()
 	}
 
-	getConfigFields() {
+	getConfigFields(): SomeCompanionConfigField[] {
 		return getConfigFields()
 	}
 
@@ -73,6 +81,10 @@ export class RealLineInstance extends InstanceBase<ModuleConfig> {
 				break
 			case 'tracker_state':
 				this.state.updateTracker(msg)
+				break
+			case 'timecode':
+				this.state.timecode = msg.value
+				this.setVariableValues({ timecode: msg.value })
 				break
 			case 'pong':
 				break
@@ -99,11 +111,11 @@ export class RealLineInstance extends InstanceBase<ModuleConfig> {
 			this.setActionDefinitions(getActions(this))
 			this.setFeedbackDefinitions(getFeedbacks(this))
 			this.setVariableDefinitions(getVariableDefinitions(this.state))
-			this.setPresetDefinitions(getPresets(this))
+			this.setPresetDefinitions(getPresetSections(), getPresets(this))
 		}
 		this.setVariableValues(getVariableValues(this.state))
-		this.checkFeedbacks()
+		this.checkAllFeedbacks()
 	}
 }
 
-runEntrypoint(RealLineInstance, upgradeScripts)
+export { upgradeScripts as UpgradeScripts }

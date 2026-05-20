@@ -1,6 +1,7 @@
 import { combineRgb } from '@companion-module/base'
 import type { CompanionFeedbackDefinitions, SomeCompanionFeedbackInputField } from '@companion-module/base'
-import type { RealLineInstance } from './main.js'
+import type RealLineInstance from './main.js'
+import type { TrackerInfo } from './types.js'
 
 function trackerDropdown(choices: { id: string; label: string }[]): SomeCompanionFeedbackInputField {
 	return {
@@ -13,6 +14,10 @@ function trackerDropdown(choices: { id: string; label: string }[]): SomeCompanio
 	}
 }
 
+function optionToString(value: unknown): string {
+	return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' ? String(value) : ''
+}
+
 export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefinitions {
 	const choices = instance.state.getTrackerChoices()
 
@@ -23,7 +28,7 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 			defaultStyle: { bgcolor: combineRgb(180, 0, 0), color: combineRgb(255, 255, 255) },
 			options: [trackerDropdown(choices)],
 			callback: (feedback) => {
-				const tracker = instance.state.getTracker(String(feedback.options['tracker'] ?? ''))
+				const tracker = instance.state.getTracker(optionToString(feedback.options['tracker']))
 				return tracker?.recording ?? false
 			},
 		},
@@ -34,7 +39,7 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 			defaultStyle: { bgcolor: combineRgb(0, 160, 0), color: combineRgb(255, 255, 255) },
 			options: [trackerDropdown(choices)],
 			callback: (feedback) => {
-				const tracker = instance.state.getTracker(String(feedback.options['tracker'] ?? ''))
+				const tracker = instance.state.getTracker(optionToString(feedback.options['tracker']))
 				return tracker?.previewing ?? false
 			},
 		},
@@ -45,7 +50,7 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 			defaultStyle: { bgcolor: combineRgb(0, 80, 200), color: combineRgb(255, 255, 255) },
 			options: [trackerDropdown(choices)],
 			callback: (feedback) => {
-				const tracker = instance.state.getTracker(String(feedback.options['tracker'] ?? ''))
+				const tracker = instance.state.getTracker(optionToString(feedback.options['tracker']))
 				return tracker?.frozen ?? false
 			},
 		},
@@ -55,7 +60,7 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 			name: 'Any Tracker — Is Recording',
 			defaultStyle: { bgcolor: combineRgb(180, 0, 0), color: combineRgb(255, 255, 255) },
 			options: [],
-			callback: () => instance.state.trackers.some((t) => t.recording),
+			callback: () => instance.state.trackers.some((t: TrackerInfo) => t.recording),
 		},
 
 		any_previewing: {
@@ -63,7 +68,7 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 			name: 'Any Tracker — Is Previewing',
 			defaultStyle: { bgcolor: combineRgb(0, 160, 0), color: combineRgb(255, 255, 255) },
 			options: [],
-			callback: () => instance.state.trackers.some((t) => t.previewing),
+			callback: () => instance.state.trackers.some((t: TrackerInfo) => t.previewing),
 		},
 
 		connected: {
@@ -79,7 +84,17 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 			name: 'All Trackers — All Recording',
 			defaultStyle: { bgcolor: combineRgb(180, 0, 0), color: combineRgb(255, 255, 255) },
 			options: [],
-			callback: () => instance.state.trackers.length > 0 && instance.state.trackers.every((t) => t.recording),
+			callback: () =>
+				instance.state.trackers.length > 0 && instance.state.trackers.every((t: TrackerInfo) => t.recording),
+		},
+
+		all_previewing: {
+			type: 'boolean',
+			name: 'All Trackers — All Previewing',
+			defaultStyle: { bgcolor: combineRgb(0, 160, 0), color: combineRgb(255, 255, 255) },
+			options: [],
+			callback: () =>
+				instance.state.trackers.length > 0 && instance.state.trackers.every((t: TrackerInfo) => t.previewing),
 		},
 
 		all_idle: {
@@ -87,7 +102,7 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 			name: 'All Trackers — All Idle (not recording, not previewing)',
 			defaultStyle: { bgcolor: combineRgb(70, 70, 70), color: combineRgb(255, 255, 255) },
 			options: [],
-			callback: () => instance.state.trackers.every((t) => !t.recording && !t.previewing),
+			callback: () => instance.state.trackers.every((t: TrackerInfo) => !t.recording && !t.previewing),
 		},
 
 		not_all_recording: {
@@ -95,7 +110,15 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 			name: 'All Trackers — Not All Recording',
 			defaultStyle: { bgcolor: combineRgb(70, 70, 70), color: combineRgb(255, 255, 255) },
 			options: [],
-			callback: () => !instance.state.trackers.every((t) => t.recording),
+			callback: () => !instance.state.trackers.every((t: TrackerInfo) => t.recording),
+		},
+
+		not_all_previewing: {
+			type: 'boolean',
+			name: 'All Trackers — Not All Previewing',
+			defaultStyle: { bgcolor: combineRgb(70, 70, 70), color: combineRgb(255, 255, 255) },
+			options: [],
+			callback: () => !instance.state.trackers.every((t: TrackerInfo) => t.previewing),
 		},
 
 		tracker_warning: {
@@ -104,7 +127,7 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 			defaultStyle: { bgcolor: combineRgb(220, 120, 0), color: combineRgb(255, 255, 255) },
 			options: [trackerDropdown(choices)],
 			callback: (feedback) => {
-				const tracker = instance.state.getTracker(String(feedback.options['tracker'] ?? ''))
+				const tracker = instance.state.getTracker(optionToString(feedback.options['tracker']))
 				return tracker?.hasWarning ?? false
 			},
 		},
@@ -114,7 +137,7 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 			name: 'Any Tracker — Has Warning',
 			defaultStyle: { bgcolor: combineRgb(220, 120, 0), color: combineRgb(255, 255, 255) },
 			options: [],
-			callback: () => instance.state.trackers.some((t) => t.hasWarning),
+			callback: () => instance.state.trackers.some((t: TrackerInfo) => t.hasWarning),
 		},
 
 		tracker_status: {
@@ -122,12 +145,12 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 			name: 'Tracker — Status Color (combined)',
 			options: [trackerDropdown(choices)],
 			callback: (feedback) => {
-				const tracker = instance.state.getTracker(String(feedback.options['tracker'] ?? ''))
+				const tracker = instance.state.getTracker(optionToString(feedback.options['tracker']))
 				if (!tracker) return {}
 				if (tracker.hasWarning) return { bgcolor: combineRgb(220, 120, 0) }
-				if (tracker.recording)  return { bgcolor: combineRgb(180, 0, 0) }
+				if (tracker.recording) return { bgcolor: combineRgb(180, 0, 0) }
 				if (tracker.previewing) return { bgcolor: combineRgb(0, 160, 0) }
-				if (tracker.frozen)     return { bgcolor: combineRgb(0, 80, 200) }
+				if (tracker.frozen) return { bgcolor: combineRgb(0, 80, 200) }
 				return { bgcolor: combineRgb(70, 70, 70) }
 			},
 		},
