@@ -77,14 +77,14 @@ export default class RealLineInstance extends InstanceBase<ModuleSchema> {
 	private handleWsMessage(msg: WsEvent): void {
 		switch (msg.event) {
 			case 'state':
-				this.state.updateTrackers(msg.trackers)
+				this.state.updateState(msg)
 				break
 			case 'tracker_state':
 				this.state.updateTracker(msg)
 				break
 			case 'timecode':
-				this.state.timecode = msg.value
-				this.setVariableValues({ timecode: msg.value })
+				this.state.updateSession({ timecode: msg.value })
+				this.setVariableValues(getVariableValues(this.state))
 				break
 			case 'pong':
 				break

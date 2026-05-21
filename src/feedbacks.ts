@@ -1,5 +1,6 @@
 import { combineRgb } from '@companion-module/base'
 import type { CompanionFeedbackDefinitions, SomeCompanionFeedbackInputField } from '@companion-module/base'
+import { PAUSE_ICON_PNG64, PLAY_ICON_PNG64 } from './icons.js'
 import type RealLineInstance from './main.js'
 import type { TrackerInfo } from './types.js'
 
@@ -25,7 +26,12 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 		recording: {
 			type: 'boolean',
 			name: 'Tracker — Is Recording',
-			defaultStyle: { bgcolor: combineRgb(180, 0, 0), color: combineRgb(255, 255, 255) },
+			defaultStyle: {
+				bgcolor: combineRgb(180, 0, 0),
+				color: combineRgb(255, 255, 255),
+				png64: PAUSE_ICON_PNG64,
+				pngalignment: 'center:center',
+			},
 			options: [trackerDropdown(choices)],
 			callback: (feedback) => {
 				const tracker = instance.state.getTracker(optionToString(feedback.options['tracker']))
@@ -152,6 +158,40 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 				if (tracker.previewing) return { bgcolor: combineRgb(0, 160, 0) }
 				if (tracker.frozen) return { bgcolor: combineRgb(0, 80, 200) }
 				return { bgcolor: combineRgb(70, 70, 70) }
+			},
+		},
+
+		record_all_status: {
+			type: 'advanced',
+			name: 'All Trackers - Record Status Color and Icon',
+			options: [],
+			callback: () => {
+				const isRecording =
+					instance.state.trackers.length > 0 && instance.state.trackers.every((t: TrackerInfo) => t.recording)
+
+				return {
+					bgcolor: isRecording ? combineRgb(180, 0, 0) : combineRgb(0, 0, 0),
+					color: combineRgb(255, 255, 255),
+					png64: isRecording ? PAUSE_ICON_PNG64 : PLAY_ICON_PNG64,
+					pngalignment: 'center:center',
+				}
+			},
+		},
+
+		preview_all_status: {
+			type: 'advanced',
+			name: 'All Trackers - Preview Status Color and Icon',
+			options: [],
+			callback: () => {
+				const isPreviewing =
+					instance.state.trackers.length > 0 && instance.state.trackers.every((t: TrackerInfo) => t.previewing)
+
+				return {
+					bgcolor: isPreviewing ? combineRgb(0, 160, 0) : combineRgb(0, 0, 0),
+					color: combineRgb(255, 255, 255),
+					png64: isPreviewing ? PAUSE_ICON_PNG64 : PLAY_ICON_PNG64,
+					pngalignment: 'center:center',
+				}
 			},
 		},
 	}

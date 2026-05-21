@@ -1,8 +1,12 @@
-import type { TrackerInfo } from './types.js'
+import type { SessionInfo, TrackerInfo, WsStateEvent } from './types.js'
 
 export class StateManager {
 	trackers: TrackerInfo[] = []
 	wsConnected = false
+	projectName = ''
+	sessionName = ''
+	sceneNo = ''
+	takeNo = ''
 	timecode = ''
 
 	private readonly onChange: () => void
@@ -14,6 +18,26 @@ export class StateManager {
 	updateTrackers(trackers: TrackerInfo[]): void {
 		this.trackers = trackers
 		this.onChange()
+	}
+
+	updateState(msg: WsStateEvent): void {
+		if (msg.trackers) this.trackers = msg.trackers
+		this.updateSession({
+			projectName: msg.projectName ?? msg.session?.projectName,
+			sessionName: msg.sessionName ?? msg.session?.sessionName,
+			sceneNo: msg.sceneNo ?? msg.session?.sceneNo,
+			takeNo: msg.takeNo ?? msg.session?.takeNo,
+			timecode: msg.timecode ?? msg.session?.timecode,
+		})
+		this.onChange()
+	}
+
+	updateSession(session: SessionInfo): void {
+		this.projectName = session.projectName ?? this.projectName
+		this.sessionName = session.sessionName ?? this.sessionName
+		this.sceneNo = session.sceneNo ?? this.sceneNo
+		this.takeNo = session.takeNo ?? this.takeNo
+		this.timecode = session.timecode ?? this.timecode
 	}
 
 	updateTracker(tracker: TrackerInfo): void {

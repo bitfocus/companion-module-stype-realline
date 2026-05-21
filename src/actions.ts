@@ -94,15 +94,15 @@ export function getActions(instance: RealLineInstance): CompanionActionDefinitio
 		},
 
 		next_scene: {
-			name: 'Next Scene (+ Reset Take Number)',
+			name: 'Next Scene',
 			options: [],
 			callback: () => instance.ws.send({ cmd: 'next_scene' }),
 		},
 
 		reset_take_number: {
-			name: 'Reset Take Number',
+			name: 'Reset Take No',
 			options: [],
-			callback: () => instance.ws.send({ cmd: 'reset_take_number' }),
+			callback: () => instance.ws.send({ cmd: 'reset_take_no' }),
 		},
 
 		refresh_state: {

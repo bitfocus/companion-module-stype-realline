@@ -8,6 +8,14 @@ export interface TrackerInfo {
 	hasWarning: boolean
 }
 
+export interface SessionInfo {
+	projectName?: string
+	sessionName?: string
+	sceneNo?: string
+	takeNo?: string
+	timecode?: string
+}
+
 export interface ModuleConfig {
 	[key: string]: string | number
 	host: string
@@ -19,7 +27,13 @@ export interface ModuleConfig {
 
 export interface WsStateEvent {
 	event: 'state'
-	trackers: TrackerInfo[]
+	trackers?: TrackerInfo[]
+	projectName?: string
+	sessionName?: string
+	sceneNo?: string
+	takeNo?: string
+	timecode?: string
+	session?: SessionInfo
 }
 
 export interface WsPongEvent {
