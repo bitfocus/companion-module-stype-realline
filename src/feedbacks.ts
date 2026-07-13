@@ -1,6 +1,6 @@
 import { combineRgb } from '@companion-module/base'
 import type { CompanionFeedbackDefinitions, SomeCompanionFeedbackInputField } from '@companion-module/base'
-import { RECORD_GLYPH, STOP_GLYPH } from './icons.js'
+import { RECORD_ICON_PNG64, STOP_ICON_PNG64 } from './icons.js'
 import type RealLineInstance from './main.js'
 import type { TrackerInfo } from './types.js'
 
@@ -26,12 +26,7 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 		recording: {
 			type: 'boolean',
 			name: 'Tracker — Is Recording',
-			defaultStyle: {
-				bgcolor: combineRgb(180, 0, 0),
-				color: combineRgb(255, 255, 255),
-				text: RECORD_GLYPH,
-				size: '44',
-			},
+			defaultStyle: { bgcolor: combineRgb(180, 0, 0), color: combineRgb(255, 255, 255) },
 			options: [trackerDropdown(choices)],
 			callback: (feedback) => {
 				const tracker = instance.state.getTracker(optionToString(feedback.options['tracker']))
@@ -132,21 +127,21 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 				const isRecording =
 					instance.state.trackers.length > 0 && instance.state.trackers.every((t: TrackerInfo) => t.recording)
 
-				// Oscillating record button:
-				//   idle       → red record circle (●) on black  — "press to record"
-				//   recording  → white stop square (■) on red    — "press to stop"
+				// Oscillating record button (icons from the RealLine app's own SVGs):
+				//   idle       → red record circle + white outline on grey  — "press to record"
+				//   recording  → white stop square on red                   — "press to stop"
 				return isRecording
 					? {
-							bgcolor: combineRgb(180, 0, 0),
-							color: combineRgb(255, 255, 255),
-							text: STOP_GLYPH,
-							size: '44',
+							bgcolor: combineRgb(181, 0, 0),
+							text: '',
+							png64: STOP_ICON_PNG64,
+							pngalignment: 'center:center',
 						}
 					: {
-							bgcolor: combineRgb(0, 0, 0),
-							color: combineRgb(220, 0, 0),
-							text: RECORD_GLYPH,
-							size: '44',
+							bgcolor: combineRgb(70, 70, 70),
+							text: '',
+							png64: RECORD_ICON_PNG64,
+							pngalignment: 'center:center',
 						}
 			},
 		},

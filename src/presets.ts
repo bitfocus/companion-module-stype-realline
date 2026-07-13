@@ -1,13 +1,12 @@
 import { combineRgb } from '@companion-module/base'
 import type { CompanionPresetDefinitions, CompanionPresetSection } from '@companion-module/base'
-import { NEXT_GLYPH, RECORD_GLYPH, RELOAD_GLYPH } from './icons.js'
+import { NEXT_GLYPH, RECORD_ICON_PNG64, RELOAD_GLYPH } from './icons.js'
 import type RealLineInstance from './main.js'
 
 const WHITE = combineRgb(255, 255, 255)
 const GREEN = combineRgb(0, 160, 0)
 const BLACK = combineRgb(0, 0, 0)
 const GREY = combineRgb(70, 70, 70)
-const YELLOW = combineRgb(220, 120, 0)
 
 const REFRESH_STEP = [{ down: [{ actionId: 'refresh_state', options: {} }], up: [] }]
 
@@ -135,18 +134,17 @@ export function getPresets(_instance: RealLineInstance): CompanionPresetDefiniti
 	presets['record_all'] = {
 		type: 'simple',
 		name: 'Record - All Trackers',
-		// Base style matches the feedback's idle branch: a red record circle on black.
+		// Base style matches the feedback's idle branch: a red record circle on grey.
 		// record_all_status swaps it to a stop square once recording begins.
 		style: {
-			text: RECORD_GLYPH,
-			size: '44',
-			color: combineRgb(220, 0, 0),
-			bgcolor: BLACK,
+			text: '',
+			size: '14',
+			color: WHITE,
+			bgcolor: GREY,
+			png64: RECORD_ICON_PNG64,
+			pngalignment: 'center:center',
 		},
-		feedbacks: [
-			{ feedbackId: 'record_all_status', options: {} },
-			{ feedbackId: 'any_warning', options: {}, style: { bgcolor: YELLOW } },
-		],
+		feedbacks: [{ feedbackId: 'record_all_status', options: {} }],
 		steps: [{ down: [{ actionId: 'toggle_record_all', options: {} }], up: [] }],
 	}
 
