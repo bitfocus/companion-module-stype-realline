@@ -1,6 +1,6 @@
 import { combineRgb } from '@companion-module/base'
 import type { CompanionPresetDefinitions, CompanionPresetSection } from '@companion-module/base'
-import { NEXT_ICON_PNG64, PLAY_ICON_PNG64, RELOAD_ICON_PNG64 } from './icons.js'
+import { NEXT_GLYPH, RECORD_GLYPH, RELOAD_GLYPH } from './icons.js'
 import type RealLineInstance from './main.js'
 
 const WHITE = combineRgb(255, 255, 255)
@@ -39,9 +39,7 @@ export function getPresetSections(): CompanionPresetSection[] {
 		{
 			id: 'all_trackers',
 			name: 'All Trackers',
-			definitions: [
-				{ id: 'all_trackers', name: 'All Trackers', type: 'simple', presets: ['record_all', 'preview_all'] },
-			],
+			definitions: [{ id: 'all_trackers', name: 'All Trackers', type: 'simple', presets: ['record_all'] }],
 		},
 		{
 			id: 'scene',
@@ -137,51 +135,29 @@ export function getPresets(_instance: RealLineInstance): CompanionPresetDefiniti
 	presets['record_all'] = {
 		type: 'simple',
 		name: 'Record - All Trackers',
+		// Base style matches the feedback's idle branch: a red record circle on black.
+		// record_all_status swaps it to a stop square once recording begins.
 		style: {
-			text: '',
-			size: '14',
-			color: WHITE,
+			text: RECORD_GLYPH,
+			size: '44',
+			color: combineRgb(220, 0, 0),
 			bgcolor: BLACK,
-			png64: PLAY_ICON_PNG64,
-			pngalignment: 'center:center',
 		},
 		feedbacks: [
 			{ feedbackId: 'record_all_status', options: {} },
 			{ feedbackId: 'any_warning', options: {}, style: { bgcolor: YELLOW } },
-			{ feedbackId: 'not_all_recording', options: {}, style: { bgcolor: BLACK, png64: PLAY_ICON_PNG64 } },
 		],
 		steps: [{ down: [{ actionId: 'toggle_record_all', options: {} }], up: [] }],
-	}
-
-	presets['preview_all'] = {
-		type: 'simple',
-		name: 'Preview - All Trackers',
-		style: {
-			text: '',
-			size: '14',
-			color: WHITE,
-			bgcolor: BLACK,
-			png64: PLAY_ICON_PNG64,
-			pngalignment: 'center:center',
-		},
-		feedbacks: [
-			{ feedbackId: 'preview_all_status', options: {} },
-			{ feedbackId: 'any_warning', options: {}, style: { bgcolor: YELLOW } },
-			{ feedbackId: 'not_all_previewing', options: {}, style: { bgcolor: BLACK, png64: PLAY_ICON_PNG64 } },
-		],
-		steps: [{ down: [{ actionId: 'toggle_preview_all', options: {} }], up: [] }],
 	}
 
 	presets['next_scene'] = {
 		type: 'simple',
 		name: 'Next Scene',
 		style: {
-			text: '',
-			size: '14',
+			text: NEXT_GLYPH,
+			size: '44',
 			color: BLACK,
 			bgcolor: WHITE,
-			png64: NEXT_ICON_PNG64,
-			pngalignment: 'center:center',
 		},
 		feedbacks: [],
 		steps: [{ down: [{ actionId: 'next_scene', options: {} }], up: [] }],
@@ -191,12 +167,10 @@ export function getPresets(_instance: RealLineInstance): CompanionPresetDefiniti
 		type: 'simple',
 		name: 'Reset Take Number',
 		style: {
-			text: '',
-			size: '14',
+			text: RELOAD_GLYPH,
+			size: '44',
 			color: BLACK,
 			bgcolor: WHITE,
-			png64: RELOAD_ICON_PNG64,
-			pngalignment: 'center:center',
 		},
 		feedbacks: [],
 		steps: [{ down: [{ actionId: 'reset_take_number', options: {} }], up: [] }],

@@ -1,6 +1,6 @@
 import { combineRgb } from '@companion-module/base'
 import type { CompanionFeedbackDefinitions, SomeCompanionFeedbackInputField } from '@companion-module/base'
-import { PAUSE_ICON_PNG64, PLAY_ICON_PNG64 } from './icons.js'
+import { RECORD_GLYPH, STOP_GLYPH } from './icons.js'
 import type RealLineInstance from './main.js'
 import type { TrackerInfo } from './types.js'
 
@@ -29,24 +29,13 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 			defaultStyle: {
 				bgcolor: combineRgb(180, 0, 0),
 				color: combineRgb(255, 255, 255),
-				png64: PAUSE_ICON_PNG64,
-				pngalignment: 'center:center',
+				text: RECORD_GLYPH,
+				size: '44',
 			},
 			options: [trackerDropdown(choices)],
 			callback: (feedback) => {
 				const tracker = instance.state.getTracker(optionToString(feedback.options['tracker']))
 				return tracker?.recording ?? false
-			},
-		},
-
-		previewing: {
-			type: 'boolean',
-			name: 'Tracker — Is Previewing',
-			defaultStyle: { bgcolor: combineRgb(0, 160, 0), color: combineRgb(255, 255, 255) },
-			options: [trackerDropdown(choices)],
-			callback: (feedback) => {
-				const tracker = instance.state.getTracker(optionToString(feedback.options['tracker']))
-				return tracker?.previewing ?? false
 			},
 		},
 
@@ -69,14 +58,6 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 			callback: () => instance.state.trackers.some((t: TrackerInfo) => t.recording),
 		},
 
-		any_previewing: {
-			type: 'boolean',
-			name: 'Any Tracker — Is Previewing',
-			defaultStyle: { bgcolor: combineRgb(0, 160, 0), color: combineRgb(255, 255, 255) },
-			options: [],
-			callback: () => instance.state.trackers.some((t: TrackerInfo) => t.previewing),
-		},
-
 		connected: {
 			type: 'boolean',
 			name: 'RealLine — Connected',
@@ -94,21 +75,12 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 				instance.state.trackers.length > 0 && instance.state.trackers.every((t: TrackerInfo) => t.recording),
 		},
 
-		all_previewing: {
-			type: 'boolean',
-			name: 'All Trackers — All Previewing',
-			defaultStyle: { bgcolor: combineRgb(0, 160, 0), color: combineRgb(255, 255, 255) },
-			options: [],
-			callback: () =>
-				instance.state.trackers.length > 0 && instance.state.trackers.every((t: TrackerInfo) => t.previewing),
-		},
-
 		all_idle: {
 			type: 'boolean',
-			name: 'All Trackers — All Idle (not recording, not previewing)',
+			name: 'All Trackers — All Idle (not recording)',
 			defaultStyle: { bgcolor: combineRgb(70, 70, 70), color: combineRgb(255, 255, 255) },
 			options: [],
-			callback: () => instance.state.trackers.every((t: TrackerInfo) => !t.recording && !t.previewing),
+			callback: () => instance.state.trackers.every((t: TrackerInfo) => !t.recording),
 		},
 
 		not_all_recording: {
@@ -117,14 +89,6 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 			defaultStyle: { bgcolor: combineRgb(70, 70, 70), color: combineRgb(255, 255, 255) },
 			options: [],
 			callback: () => !instance.state.trackers.every((t: TrackerInfo) => t.recording),
-		},
-
-		not_all_previewing: {
-			type: 'boolean',
-			name: 'All Trackers — Not All Previewing',
-			defaultStyle: { bgcolor: combineRgb(70, 70, 70), color: combineRgb(255, 255, 255) },
-			options: [],
-			callback: () => !instance.state.trackers.every((t: TrackerInfo) => t.previewing),
 		},
 
 		tracker_warning: {
@@ -155,7 +119,6 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 				if (!tracker) return {}
 				if (tracker.hasWarning) return { bgcolor: combineRgb(220, 120, 0) }
 				if (tracker.recording) return { bgcolor: combineRgb(180, 0, 0) }
-				if (tracker.previewing) return { bgcolor: combineRgb(0, 160, 0) }
 				if (tracker.frozen) return { bgcolor: combineRgb(0, 80, 200) }
 				return { bgcolor: combineRgb(70, 70, 70) }
 			},
@@ -169,29 +132,22 @@ export function getFeedbacks(instance: RealLineInstance): CompanionFeedbackDefin
 				const isRecording =
 					instance.state.trackers.length > 0 && instance.state.trackers.every((t: TrackerInfo) => t.recording)
 
-				return {
-					bgcolor: isRecording ? combineRgb(180, 0, 0) : combineRgb(0, 0, 0),
-					color: combineRgb(255, 255, 255),
-					png64: isRecording ? PAUSE_ICON_PNG64 : PLAY_ICON_PNG64,
-					pngalignment: 'center:center',
-				}
-			},
-		},
-
-		preview_all_status: {
-			type: 'advanced',
-			name: 'All Trackers - Preview Status Color and Icon',
-			options: [],
-			callback: () => {
-				const isPreviewing =
-					instance.state.trackers.length > 0 && instance.state.trackers.every((t: TrackerInfo) => t.previewing)
-
-				return {
-					bgcolor: isPreviewing ? combineRgb(0, 160, 0) : combineRgb(0, 0, 0),
-					color: combineRgb(255, 255, 255),
-					png64: isPreviewing ? PAUSE_ICON_PNG64 : PLAY_ICON_PNG64,
-					pngalignment: 'center:center',
-				}
+				// Oscillating record button:
+				//   idle       → red record circle (●) on black  — "press to record"
+				//   recording  → white stop square (■) on red    — "press to stop"
+				return isRecording
+					? {
+							bgcolor: combineRgb(180, 0, 0),
+							color: combineRgb(255, 255, 255),
+							text: STOP_GLYPH,
+							size: '44',
+						}
+					: {
+							bgcolor: combineRgb(0, 0, 0),
+							color: combineRgb(220, 0, 0),
+							text: RECORD_GLYPH,
+							size: '44',
+						}
 			},
 		},
 	}

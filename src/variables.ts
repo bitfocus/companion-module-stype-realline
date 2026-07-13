@@ -23,14 +23,13 @@ export function getVariableDefinitions(state: StateManager): CompanionVariableDe
 		timecode_seconds: { name: 'Timecode Seconds' },
 		timecode_frames: { name: 'Timecode Frames' },
 		tracker_count: { name: 'Total Tracker Count' },
-		active_count: { name: 'Active Tracker Count (recording or previewing)' },
+		active_count: { name: 'Recording Tracker Count' },
 		tracker_names: { name: 'All Tracker Names (comma-separated)' },
 	}
 
 	for (const tracker of state.trackers) {
 		const s = safeName(tracker.name)
 		defs[`tracker_${s}_recording`] = { name: `${tracker.name} - Recording` }
-		defs[`tracker_${s}_previewing`] = { name: `${tracker.name} - Previewing` }
 		defs[`tracker_${s}_frozen`] = { name: `${tracker.name} - Frozen` }
 		defs[`tracker_${s}_warning`] = { name: `${tracker.name} - Has Warning` }
 	}
@@ -51,14 +50,13 @@ export function getVariableValues(state: StateManager): CompanionVariableValues 
 		timecode_seconds: timecodePart(state.timecode, 2),
 		timecode_frames: timecodePart(state.timecode, 3),
 		tracker_count: state.trackers.length,
-		active_count: state.trackers.filter((t) => t.recording || t.previewing).length,
+		active_count: state.trackers.filter((t) => t.recording).length,
 		tracker_names: state.trackers.map((t) => t.name).join(', '),
 	}
 
 	for (const tracker of state.trackers) {
 		const s = safeName(tracker.name)
 		values[`tracker_${s}_recording`] = tracker.recording
-		values[`tracker_${s}_previewing`] = tracker.previewing
 		values[`tracker_${s}_frozen`] = tracker.frozen
 		values[`tracker_${s}_warning`] = tracker.hasWarning
 	}

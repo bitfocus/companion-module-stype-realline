@@ -21,18 +21,6 @@ export function getActions(instance: RealLineInstance): CompanionActionDefinitio
 	const choices = instance.state.getTrackerChoices()
 
 	return {
-		preview_start_all: {
-			name: 'Start Preview — All Trackers',
-			options: [],
-			callback: () => instance.ws.send({ cmd: 'preview_start_all' }),
-		},
-
-		preview_stop_all: {
-			name: 'Stop Preview — All Trackers',
-			options: [],
-			callback: () => instance.ws.send({ cmd: 'preview_stop_all' }),
-		},
-
 		record_start_all: {
 			name: 'Start Recording — All Trackers',
 			options: [],
@@ -43,20 +31,6 @@ export function getActions(instance: RealLineInstance): CompanionActionDefinitio
 			name: 'Stop Recording — All Trackers',
 			options: [],
 			callback: () => instance.ws.send({ cmd: 'record_stop_all' }),
-		},
-
-		preview_start: {
-			name: 'Start Preview — Tracker',
-			options: [trackerDropdown(choices)],
-			callback: (action) =>
-				instance.ws.send({ cmd: 'preview_start', tracker: optionToString(action.options['tracker']) }),
-		},
-
-		preview_stop: {
-			name: 'Stop Preview — Tracker',
-			options: [trackerDropdown(choices)],
-			callback: (action) =>
-				instance.ws.send({ cmd: 'preview_stop', tracker: optionToString(action.options['tracker']) }),
 		},
 
 		record_start: {
@@ -80,16 +54,6 @@ export function getActions(instance: RealLineInstance): CompanionActionDefinitio
 				const allRecording =
 					instance.state.trackers.length > 0 && instance.state.trackers.every((t: TrackerInfo) => t.recording)
 				instance.ws.send({ cmd: allRecording ? 'record_stop_all' : 'record_start_all' })
-			},
-		},
-
-		toggle_preview_all: {
-			name: 'Toggle Preview — All Trackers',
-			options: [],
-			callback: () => {
-				const allPreviewing =
-					instance.state.trackers.length > 0 && instance.state.trackers.every((t: TrackerInfo) => t.previewing)
-				instance.ws.send({ cmd: allPreviewing ? 'preview_stop_all' : 'preview_start_all' })
 			},
 		},
 

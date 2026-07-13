@@ -3,7 +3,6 @@ export interface TrackerInfo {
 	name: string
 	index: number
 	recording: boolean
-	previewing: boolean
 	frozen: boolean
 	hasWarning: boolean
 }
